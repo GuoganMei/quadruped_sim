@@ -44,7 +44,7 @@ function [Aqp,Bqp] = get_AqpBqp(Xt,XdN,p)
     %-----get Ad0~Adk-1 and Bd0~Bdk-1----
     Ac0=get_Ac(x0(3));
     Ad0=dis_A(Ac0,p.Tmpc);
-    Bc0=get_Bc(x0(3),pf34_0-x0(4:6),p);
+    Bc0=get_Bc(x0(3),pf34_0,p);
     Bd0=dis_B(Ac0,Bc0,p.Tmpc);
     
     Ad_cell=cell(1,p.predHorizon);
@@ -54,7 +54,7 @@ function [Aqp,Bqp] = get_AqpBqp(Xt,XdN,p)
     for i=1:p.predHorizon-1
         Ac=get_Ac(X_ref13_N(3,i));
         Ad=dis_A(Ac,p.Tmpc);
-        Bc=get_Bc(X_ref13_N(3,i),pf34{i}-X_ref13_N(4:6,i),p);
+        Bc=get_Bc(X_ref13_N(3,i),pf34{i},p);
         Bd=dis_B(Ac,Bc,p.Tmpc);
         Ad_cell{i+1}=Ad;
         Bd_cell{i+1}=Bd;
@@ -76,11 +76,11 @@ function [Aqp,Bqp] = get_AqpBqp(Xt,XdN,p)
         for j=1:i-1
             Bqp((i-1)*size(Ad0,1)+1:i*size(Ad0,1),...
                 (j-1)*size(Bd0,2)+1:j*size(Bd0,2))=...
-                D_cell{i-1}*Bd_cell{j};
+                D_cell(i-1)*Bd_cell(j);
         end
         Bqp((i-1)*size(Ad0,1)+1:i*size(Ad0,1),...
-                (i-1)*size(Bd0,2)+1:i*size(Bd0,2))=...
-                Bd_cell{i};
+                (j-1)*size(Bd0,2)+1:j*size(Bd0,2))=...
+                D_cell(i-1)*Bd_cell(j);
     end
 end
 
@@ -96,13 +96,12 @@ function Ac=get_Ac(psi)
         zeros(1,13)];
 end
 %% get continus B
-function Bc= get_Bc(psi,r34,p)
-% !!!r34 is foot position with respect to com!!!
+function Bc= get_Bc(psi,pf34,p)
 %   rz hatMaP from addpath("../fcns_sim");
     I=rz(psi)*p.J*rz(psi)';
     Bc=[zeros(3),zeros(3),zeros(3),zeros(3);...
         zeros(3),zeros(3),zeros(3),zeros(3);...
-        I\hatMap(r34(:,1)),I\hatMap(r34(:,2)),I\hatMap(r34(:,3)),I\hatMap(r34(:,4));...
+        I\hatMap(pf34(:,1)),I\hatMap(pf34(:,2)),I\hatMap(pf34(:,3)),I\hatMap(pf34(:,4));...
         eye(3)/p.mass,eye(3)/p.mass,eye(3)/p.mass,eye(3)/p.mass;...
         zeros(1,12)];
 end

@@ -1,6 +1,6 @@
 function p = get_params()%gait
 
-p.predHorizon = 6;
+p.predHorizon = 12;
 p.simTimeStep = 1/200;
 p.Tmpc = 4/100;             % MPC prediction step time
 %p.gait = gait;
@@ -10,20 +10,30 @@ p.freq = 30;
 p.Rground = eye(3);
 p.Qf = diag([1e5 2e5 3e5 5e2 1e3 150 1e3 1e4 800 40 40 10]);
 %%%%%%%%%%%%%%%%%% my add after
-Q_p=[1e1,1e1,1e1,1e2,1e2,1e2];
-Q_v=[1e-2,1e-2,1e-2,1e-2,1e-2,1e-2];
+Q_p=[1e3,1e3,1e1,1e1,1e1,1e2];
+Q_v=[1e-1,1e-1,1e2,1e2,1e2,1e-1];
 p.state_weight=blkdiag(diag(Q_p),diag(Q_v),0);%state weight matrix
 p.input_weight=diag(1e-6*ones(12,1));%input weight matrix
 %%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+p.fzmax=50;
+p.fzmin=0;
+p.k=0.03;%kv value in raibert step
+%%%%%%%%%%%%%%%%%%%%%%%
 
 % ---- gait ----
 % if gait == 1                % 1 - bound
 %     p.Tst = 0.1;
 %     p.Tsw = 0.18;
+p.Tst = 0.1;
+p.Tsw = 0.18;
+p.dphase=0.5;
+p.gaitT=p.Tst+p.Tsw;
+p.step_ht=0.06;
 %     p.predHorizon = 7;
 %     p.simTimeStep = 1/100;  
 %     p.Tmpc = 2/100;
-%     p.decayRate = 1;
+%    p.decayRate = 1;
 %     p.R = diag(repmat([0.1 0.1 0.1]',[4,1]));
 %     p.Q = diag([5e4 2e4 1e6 4e3 5e2 5e2 1e4 5e4 1e3 1e2 5e2 1e2]);
 %     p.Qf = diag([2e5 5e4 5e6 8e3 5e2 5e2 1e4 5e4 5e3 1e2 1e2 1e2]);
@@ -71,10 +81,6 @@ p.g = 9.81;
 p.mu = 1;       % friction coefficient
 p.z0 = 0.2;     % nominal COM height
 p.pf34 = [[0.15;0.094;0],[0.15;-0.094;0],[-0.15;0.094;0],[-0.15;-0.094;0]];
-%%%%%%%%%%%%%%%%%%%%%%%
-p.fzmax=30;
-p.fzmin=0;
-%%%%%%%%%%%%%%%%%%%%%%%
 
 
 p.L = 0.301;    % body length

@@ -29,7 +29,13 @@ r34 = pf34 - repmat(pc,[1,4]);
 
 % GRF
 f34 = reshape(Ut,[3,4]);
-
+%----(2023)when foot is not on ground there can not be force
+% for ii=1:4
+%     if (pf34(:,ii)-0)>0.01
+%         f34(:,ii)=zeros(3,1);
+%     end
+% end
+%----
 %% dynamics
 ddpc = 1/mass * (sum(f34,2) + U_ext) + [0;0;-g];
 dR = R * hatMap(wb);

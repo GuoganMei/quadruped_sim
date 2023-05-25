@@ -1,4 +1,4 @@
-function [H,g] = get_Hg(Aqp,Bqp,Xt,X_ref12_N,p)
+function [H,g] = get_Hg(Aqp,Bqp,Xt,XdN,p)
 % x0:13*1 initial state,x0(13)=-q.g
 %formulate qp problem
     temp=repmat({p.state_weight},p.predHorizon,1);
@@ -6,9 +6,9 @@ function [H,g] = get_Hg(Aqp,Bqp,Xt,X_ref12_N,p)
     temp=repmat({p.input_weight},p.predHorizon,1);
     K=blkdiag(temp{:});
     
-    X_ref13_N=[X_ref12_N;-p.g*ones(1,p.predHorizon)];
+    [~,X_ref13_N]=X2x(XdN,p);
     xref=reshape(X_ref13_N,[13*p.predHorizon,1]);
-    x0=X2x(Xt,p);
+    [~,x0]=X2x(Xt,p);
 
     A=Bqp;
     B=Aqp*x0-xref;

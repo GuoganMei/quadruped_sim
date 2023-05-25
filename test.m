@@ -1,39 +1,23 @@
-p.predHorizon=2;
-[Aeq,beq]=swing_force_constraint([0,1,0,1],p);
-function[Aeq,beq]=swing_force_constraint(contact_state,p)
-    [D,Z]=swing_select_matrix(contact_state);
-    temp=repmat({D},p.predHorizon,1);
-    Aeq=blkdiag(temp{:});
-    beq=repmat(Z,p.predHorizon,1);
-end
+clear;
+clc;
+close all;
+addpath("fcns_sim");
+addpath("fcns_mpc");
+addpath("fcns_motion_planning");
+p=get_params;
+% p.predHorizon=100;
+% p.Tmpc=0.01;
+[Xt,FSM4]= init_Xt_FSM4(p);
+vcmd=[0.1,0,0]';
+wcmd=[0,0,0]';
+XdN=get_XdN_nopf(vcmd,wcmd,Xt,p);
+contact_state4N = get_contact_state4N(0,p);
+[FSM4,XdN]=get_XdN(Xt,XdN,FSM4,vcmd,wcmd,contact_state4N,p);
 
-function [Aineq,bineq] = friction_constraint(p)
-    Afc=[1,0,-0.7071*p.mu;...
-        -1,0,-0.7071*p.mu;...
-        0,1,-0.7071*p.mu;...
-        0,-1,-0.7071*p.mu;...
-        0,0,1;...
-        0,0,-1;];
-    bfc=[0;0;0;0;p.fzmax;-p.fzmin];
-    %4 leg and predHorizong force
-    temp=repmat({Afc},4*p.predHorizon,1);
-    Aineq=blkdiag(temp{:});
-    bineq=repmat(bfc,4*p.predHorizon,1);
-end
+figure();
+scatter3(XdN(19,:),XdN(20,:),XdN(21,:),'.');
+hold on
+scatter3(XdN(22,:),XdN(23,:),XdN(24,:),'.');
+scatter3(XdN(25,:),XdN(26,:),XdN(27,:),'.');
+scatter3(XdN(28,:),XdN(29,:),XdN(30,:),'.');
 
-function [D,Z]=swing_select_matrix(contact_state)
-%swing leg is 0
-%stance leg is 1
-%D*[f1 f2 f3 f4]'=Z
-%Z=0 is swing leg force
-    D=[];
-    Z=[];
-    for i=1:4
-        if contact_state(i)==0
-            temp=zeros(3,3*4);
-            temp(:,3*(i-1)+1:3*i)=eye(3);
-            D=[D;temp];
-            Z=[Z;zeros(3,1)];
-        end
-    end
-end
